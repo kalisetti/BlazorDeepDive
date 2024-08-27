@@ -1,0 +1,14 @@
+﻿@if (this.Items != null)
+{   
+    @foreach (var item in Items)
+    {
+       <ItemComponent Item="item"></ItemComponent>
+    }
+}
+
+@code {
+
+    [Parameter]
+    public List<ToDoItem>? Items { get; set; }
+
+}

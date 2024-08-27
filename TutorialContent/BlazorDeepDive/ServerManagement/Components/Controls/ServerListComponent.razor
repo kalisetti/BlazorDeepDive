@@ -1,0 +1,158 @@
+﻿
+@inherits BaseComponent
+
+@implements IDisposable
+
+@inject IServersEFCoreRepository ServersEFCoreRepository
+
+@inject PersistentComponentState ApplicationState
+
+@if (servers is null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table table-striped">
+        <RepeaterComponent Items="servers">
+            <Header>
+            <thead>
+                <tr>
+                    <th>
+                        Name
+                    </th>
+                    <th>
+                        City
+                    </th>
+                    <th>
+                        Status
+                    </th>
+                    <th>
+                        People Online
+                    </th>
+                    <th></th>
+                    <th></th>
+                </tr>
+            </thead>
+            </Header>
+            <Row Context="server">
+                <ServerComponent Server="server"></ServerComponent>
+            </Row>
+        </RepeaterComponent>
+    </table>
+}
+
+
+@code {
+
+    [Parameter]
+    public string? CityName { get; set; }
+
+    [Parameter]
+    public string SearchFilter { get; set; } = "";        
+
+    private List<Server>? servers;
+
+    private System.Threading.Timer? Timer;
+
+    private PersistingComponentStateSubscription persistingSubscription;
+
+    public override Task SetParametersAsync(ParameterView parameters)
+    {
+        var guid = Guid.NewGuid();
+        Console.WriteLine($"{this.GetType().Name}: {nameof(SetParametersAsync)} : {guid}");
+
+        if (parameters.TryGetValue<string>("CityName", out var cityName))
+        {
+            if (cityName != CityName)
+            {
+                base.SetParametersAsync(parameters);
+            }
+        }
+
+        if (parameters.TryGetValue<string>("SearchFilter", out var searchFilter))
+        {
+            if (searchFilter != SearchFilter)
+            {
+                base.SetParametersAsync(parameters);
+            }
+        }
+
+        return Task.CompletedTask;
+    }
+
+    protected override void OnParametersSet()
+    {
+        var guid = Guid.NewGuid();
+        Console.WriteLine($"{this.GetType().Name}: {nameof(OnParametersSet)} : {guid}");
+        
+        if (string.IsNullOrWhiteSpace(this.SearchFilter))
+        {
+            servers = ServersEFCoreRepository.GetServersByCity(CityName ?? "Toronto");
+        }
+        else
+        {
+            servers = ServersEFCoreRepository.SearchServers(this.SearchFilter);
+        }
+                
+    }    
+
+    protected override void OnInitialized()
+    {
+        var guid = Guid.NewGuid();
+        Console.WriteLine($"{this.GetType().Name}: {nameof(OnInitialized)} : {guid}");
+
+        persistingSubscription =
+            ApplicationState.RegisterOnPersisting(PersistData);
+
+        if (!ApplicationState.TryTakeFromJson <List<Server>?> (
+            "Servers", out var restored))
+        {
+            if (string.IsNullOrWhiteSpace(this.SearchFilter))
+            {
+                servers = ServersEFCoreRepository.GetServersByCity(CityName ?? "Toronto");
+            }
+            else
+            {
+                servers = ServersEFCoreRepository.SearchServers(this.SearchFilter);
+            }
+        }
+        else
+        {
+            servers = restored!;
+        }
+
+        Timer = new System.Threading.Timer(_ =>
+            {
+                base.InvokeAsync(StateHasChanged);
+            }, null, 5000, 5000);
+    }
+
+    private Task PersistData()
+    {
+        ApplicationState.PersistAsJson("Servers", servers);
+
+        return Task.CompletedTask;
+    }
+
+    protected override bool ShouldRender()
+    {
+        var guid = Guid.NewGuid();
+        Console.WriteLine($"{this.GetType().Name}: {nameof(ShouldRender)} : {guid}");
+
+        return base.ShouldRender();
+    }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        base.OnAfterRender(firstRender);
+
+        var guid = Guid.NewGuid();
+        Console.WriteLine($"{this.GetType().Name}: {nameof(OnAfterRender)} : {guid}");
+    }
+    
+    void IDisposable.Dispose()
+    {
+        persistingSubscription.Dispose();
+    }
+}

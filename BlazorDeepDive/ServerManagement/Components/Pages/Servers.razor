@@ -1,0 +1,56 @@
+﻿@page "/servers"
+
+@inject NavigationManager NavigationManager
+
+<h3>Servers</h3>
+<br />
+<br />
+
+
+
+<div class="container-fluid text-center">
+	<div class="row">
+		@foreach (var city in cities) {
+			<div class="col">
+				<div class="card" style="width: 15rem;">
+					<img src="@($"/images/{city}.jpg")" class="card-img-top" alt="@city" style="max-height: 8rem;">
+					<div class="card-body">
+						<button type="button" class="btn btn-primary">@city</button>
+					</div>
+				</div>
+			</div>
+		}
+	</div>
+</div>
+
+<br />
+<a href="/servers/add" class="btn btn-primary">Add Server</a>
+<br />
+
+<ul>
+	@foreach (var server in servers) {
+		<li>
+			@server.Name in @server.City is <span style="color: @(server.IsOnline ? "green" : "red")">@(server.IsOnline ? "online" : "offline")</span>
+			&nbsp;
+			<a href="/servers/@server.ServerId" class="btn btn-link">Edit</a>
+			
+			&nbsp;
+			<EditForm Model="server" FormName="@($"form-server-{server.ServerId}")" OnValidSubmit="@(() => { DeleteServer(server.ServerId); })">
+				<button type="submit" class="btn btn-primary">Delete</button>
+			</EditForm>
+		</li>
+	}
+
+</ul>
+
+@code {
+	private List<string> cities = CitiesRepository.GetCities();
+	private List<Server> servers = ServersRepository.GetServers();
+
+	private void DeleteServer(int serverId) {
+		if (serverId > 0) {
+			ServersRepository.DeleteServer(serverId);
+			NavigationManager.Refresh();
+		}
+	}
+}

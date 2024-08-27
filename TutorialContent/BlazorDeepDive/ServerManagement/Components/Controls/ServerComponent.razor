@@ -1,0 +1,159 @@
+﻿@using ServerManagement.StateStore
+@inject NavigationManager NavigationManager
+@inject TorontoOnlineServersStore TorontoOnlineServersStore
+@inject OttawaOnlineServersStore OttawaOnlineServersStore
+@inject MontrealOnlineServersStore MontrealOnlineServersStore
+@inject HalifaxOnlineServersStore HalifaxOnlineServersStore
+@inject CalgaryOnlineServersStore CalgaryOnlineServersStore
+@inject IServersEFCoreRepository ServersEFCoreRepository
+
+
+@if (Server != null)
+{
+    <tr style="background-color: @GetBackgroundColor()">
+        <td>
+            @Server.Name
+        </td>
+        <td>
+            @Server.City
+        </td>
+        <td style="color:@((Server.IsOnline ? "green" : "red"))">
+            @(Server.IsOnline ? "online" : "offline")
+        </td>
+        <td>
+            @if (Server.IsOnline)
+            {
+                Random random = new Random();
+                int randomNumber = random.Next(0, 500);
+                <text>@randomNumber</text>
+            }
+            else
+            {
+                <text>N/A</text>
+            }
+        </td>
+        <td>
+            @if (Server.IsOnline)
+            {
+                <button type="button"
+                        class="btn btn-outline-danger"
+                        @onclick="@(()=> {SetServerStatus(false);})">
+                    Turn Off
+                </button>
+            }
+            else
+            {
+                <button type="button"
+                        class="btn btn-outline-success"
+                        @onclick="@(()=> {SetServerStatus(true);})">
+                    Turn On
+                </button>
+            }
+            &nbsp;
+            <a href="/server/@Server.ServerId" class="btn btn-outline-primary">Edit</a>
+
+        </td>
+        <td>
+            <EditForm Model="Server"
+                      FormName="@($"form-Server-{Server.ServerId}")"
+                      OnValidSubmit="@(() => { DeleteServer(Server.ServerId); })">
+                <button type="submit" class="btn btn-primary">Delete</button>
+            </EditForm>
+        </td>
+    </tr>
+}
+
+
+@code {
+
+    [Parameter]
+    public Server? Server { get; set; }     
+
+    [CascadingParameter(Name = "SelectedCity")]
+    public string? SelectedCity { get; set; }
+
+    private void DeleteServer(int serverId)
+    {
+        if (serverId > 0)
+        {
+            ServersEFCoreRepository.DeleteServer(serverId);
+            NavigationManager.NavigateTo("/servers", true);
+        }
+    }
+
+    private string GetBackgroundColor()
+    {
+        if (SelectedCity != null)
+        {
+            switch (this.SelectedCity)
+            {
+                case "Toronto": return "powderblue";
+                case "Montreal": return "lightgray";
+                case "Ottawa": return "palegreen";
+                case "Calgary": return "pink";
+                case "Halifax": return "white";
+                default:
+                    return "white";
+            }
+        }
+        else
+        {
+            return "white";
+        }
+
+    }
+
+    private void SetServerStatus(bool status)
+    {
+        if (this.Server is not null)
+        {
+            if (this.Server.IsOnline != status)
+            {
+                int num = 0;
+                switch (this.Server.City)
+                {
+                    case "Toronto":
+                        num = TorontoOnlineServersStore.GetNumberServersOnline();
+                        if (status)
+                            TorontoOnlineServersStore.SetNumbersServersOnline(num + 1);
+                        else if (num >= 1)
+                            TorontoOnlineServersStore.SetNumbersServersOnline(num - 1);
+                        break;
+                    case "Montreal":
+                        num = MontrealOnlineServersStore.GetNumberServersOnline();
+                        if (status)
+                            MontrealOnlineServersStore.SetNumbersServersOnline(num + 1);
+                        else if (num >= 1)
+                            MontrealOnlineServersStore.SetNumbersServersOnline(num - 1);
+                        break;
+                    case "Ottawa":
+                        num = OttawaOnlineServersStore.GetNumberServersOnline();
+                        if (status)
+                            OttawaOnlineServersStore.SetNumbersServersOnline(num + 1);
+                        else if (num >= 1)
+                            OttawaOnlineServersStore.SetNumbersServersOnline(num - 1);
+                        break;
+                    case "Calgary":
+                        num = CalgaryOnlineServersStore.GetNumberServersOnline();
+                        if (status)
+                            CalgaryOnlineServersStore.SetNumbersServersOnline(num + 1);
+                        else if (num >= 1)
+                            CalgaryOnlineServersStore.SetNumbersServersOnline(num - 1);
+                        break;
+                    case "Halifax":
+                        num = HalifaxOnlineServersStore.GetNumberServersOnline();
+                        if (status)
+                            HalifaxOnlineServersStore.SetNumbersServersOnline(num + 1);
+                        else if (num >= 1)
+                            HalifaxOnlineServersStore.SetNumbersServersOnline(num - 1);
+                        break;
+                }
+
+                this.Server.IsOnline = status;
+
+                ServersEFCoreRepository.UpdateServer(this.Server.ServerId, Server);
+            }            
+        }
+        
+    }
+}

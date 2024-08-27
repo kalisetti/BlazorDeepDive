@@ -1,0 +1,110 @@
+﻿@page "/servers"
+@page "/servers/back_from/{cityName}"
+@using ServerManagement.StateStore
+
+@rendermode InteractiveServer
+
+@inject NavigationManager NavigationManager
+@inject TorontoOnlineServersStore TorontoOnlineServersStore
+@inject OttawaOnlineServersStore OttawaOnlineServersStore
+@inject MontrealOnlineServersStore MontrealOnlineServersStore
+@inject HalifaxOnlineServersStore HalifaxOnlineServersStore
+@inject CalgaryOnlineServersStore CalgaryOnlineServersStore
+@inject IServersEFCoreRepository ServersEFCoreRepository
+
+<h3>Servers</h3>
+<br/>
+<br/>
+
+<CityListComponent 
+    @ref="cityListComponent" 
+    SelectCityCallback="HandleCitySelection"
+    selectedCity="@this.selectedCity"></CityListComponent>
+
+<br />
+
+<SearchBarComponent 
+    @ref="searchBarComponent" 
+    SearchServerCallback="HandleSearchServer"
+    style="width:500px"></SearchBarComponent>
+
+<br/>
+
+<CascadingValue Name="SelectedCity" Value="@selectedCity">
+    <ServerListComponent         
+        CityName="@this.selectedCity"
+        SearchFilter="@searchFilter"></ServerListComponent>
+</CascadingValue>
+
+<p>
+    <a href="/servername" class="btn btn-primary">Add Server</a>
+</p>
+
+@code {
+
+    [Parameter]
+    public string? CityName { get; set; }
+
+    private string selectedCity = "Toronto";
+    private string searchFilter = "";
+
+    private CityListComponent? cityListComponent;
+    private SearchBarComponent? searchBarComponent;
+
+    private void HandleSearch()
+    {
+        //this.servers = ServersEFCoreRepository.SearchServers(serverFilter);
+
+        //this.selectedCity = string.Empty;
+    }
+
+    private void HandleCitySelection(string cityName)
+    {
+        selectedCity = cityName;
+
+        this.searchFilter = string.Empty;
+        searchBarComponent?.ClearFilter();
+    }
+
+    private void HandleSearchServer(string searchFilter)
+    {
+        this.searchFilter = searchFilter;
+
+        cityListComponent?.ClearSelection();
+    }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender)
+        {
+            if (NavigationManager.Uri.Contains("back_from")
+                && !string.IsNullOrWhiteSpace(CityName))
+            {
+                selectedCity = CityName;                
+
+                StateHasChanged();
+            }
+
+            //Init state stores
+            var serversToronto = ServersEFCoreRepository.GetServersByCity("Toronto");
+            if (serversToronto is not null)            
+                TorontoOnlineServersStore.SetNumbersServersOnline(serversToronto.Count(x => x.IsOnline));
+
+            var serversMontreal = ServersEFCoreRepository.GetServersByCity("Montreal");
+            if (serversMontreal is not null)
+                MontrealOnlineServersStore.SetNumbersServersOnline(serversMontreal.Count(x => x.IsOnline));
+
+            var serversOttawa = ServersEFCoreRepository.GetServersByCity("Ottawa");
+            if (serversOttawa is not null)
+                OttawaOnlineServersStore.SetNumbersServersOnline(serversOttawa.Count(x => x.IsOnline));
+            
+            var serversCalgary = ServersEFCoreRepository.GetServersByCity("Calgary");
+            if (serversCalgary is not null)
+                CalgaryOnlineServersStore.SetNumbersServersOnline(serversCalgary.Count(x => x.IsOnline));
+
+            var serversHalifax = ServersEFCoreRepository.GetServersByCity("Halifax");
+            if (serversHalifax is not null)
+                HalifaxOnlineServersStore.SetNumbersServersOnline(serversHalifax.Count(x => x.IsOnline));
+        }
+    }
+}
