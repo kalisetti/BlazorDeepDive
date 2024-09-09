@@ -561,6 +561,44 @@ namespace ServerManagement.Models {
 	html post request is intercepted by blazor.web.js which calls the fetch api
 	and updates the DOM.
 
+
+-- Example: /Components/Controls/ServerComponent.razor
+@if (server != null) {
+	<EditForm Enhanced="true" Model="server" FormName="serverComponentForm" OnSubmit="ChangeServerStatus">
+		<InputNumber @bind-Value="server.ServerId" hidden></InputNumber>
+		<InputText @bind-Value="server.Name" hidden></InputText>
+		<InputText @bind-Value="server.City" hidden></InputText>
+		<InputCheckbox @bind-Value="server.IsOnline" hidden></InputCheckbox>
+
+		<div data-name="@server.Name" 
+			data-status="Server is @(server.IsOnline ? "online" : "offline")"
+			style="color: @(server.IsOnline ? "green" : "red")">
+			@server.Name is in @server.City that is @(server.IsOnline ? "online" : "offline")
+			&nbsp;
+			<button type="submit" class="btn btn-primary">Turn On/Off</button>
+		</div>
+	</EditForm>
+}
+
+@code {
+	[SupplyParameterFromForm]
+	private Server? server { get; set; }
+
+	protected override void OnParametersSet() {
+		// base.OnParametersSet();
+		server ??= new Server { Name = "Server 1", City = "Perth" };
+	}
+
+	private void ChangeServerStatus() {
+		if (server != null) {
+			server.IsOnline = !server.IsOnline;
+		}
+	}
+}
+
+
+
+
 --
 -- 28. What is Server Interactivity?
 --
@@ -592,7 +630,29 @@ namespace ServerManagement.Models {
 
 * We can remove the earlier `Enhanced="true"` formhandling interactivity, and use server
 	interactivity.
+* And remove even the EditForm, and change the button type from "submit" to "button"
+* This will not work right away, we need to enable server interactivity
+
+* Go to Program.cs and change the following lines
+
+	from 
+	// Add services to the container.
+	builder.Services.AddRazorComponents();
+
+	app.MapRazorComponents<App>();
+
+	to
+	// Add services to the container.
+	builder.Services.AddRazorComponents().AddInteractiveServerComponents();
+
+	app.MapRazorComponents<App>().AddInteractiveServerRenderMode();
+
+* But it still doesnt work, because we haven''t specified which component/page is to be
+	made interactive. We can simply mention the rendermode in the component like this.
 	
+	<ServerComponent></ServerComponent>
+	
+
 	
 --
 -- 30. Interactivity Location
