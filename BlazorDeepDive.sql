@@ -916,6 +916,147 @@ MICROSOFT RECOMMENDED WAY IS:
 	Instead we can use two way binding to directly update the value entered into our search
 	field into the state variable "serverFilter".
 	
+	***Replace the following
+	
+	<input type="text" class="form-control" placeholder="Search Servers" @onchange="HandleServerFilterChange" />
+	
+		private void HandleServerFilterChange(ChangeEventArgs args) {
+		serverFilter = args.Value?.ToString() ?? string.Empty;
+	}
+	
+	***With
+	<input type="text" class="form-control" placeholder="Search Servers" @bind-value="serverFilter" />
+	
+* So how this works, Blazor behind the scene is actually using the "onchange" event for us.
+	This looks fine for setting a variable value, but how do we intercept the changes on this
+	field, say we want to do some calculation after we input the value, how can we do it?
+	
+	We can simply convert our variable
+	*** from
+	
+	private string serverFilter = "";
+	
+	*** to a property
+	
+	private string _serverFilter = "";
+	private string serverFilter {
+		get => _serverFilter;
+		set {
+			_serverFilter = value;
+			// do whatever you want here
+
+		}
+	}
+	
+* Another thing is, like said earlier the @bind-value by default uses the @onchange event
+	behind the scences. But what if you have to change this event to something else?
+	
+	*** You can achieve it by specifying the event we want to use instead using 
+	
+	@bind-value:event="oninput"
+	
+	- So our changes now
+
+	** from
+	<input type="text" class="form-control" placeholder="Search Servers" @bind-value="serverFilter" />
+	
+	** to
+	<input type="text" class="form-control" placeholder="Search Servers" @bind-value="serverFilter" @bind-value:event="oninput"/>
+	
+
+-- Code to automatically filter the results based on input
+-- /Components/Pages/Servers.razor
+
+@page "/servers"
+@rendermode InteractiveServer
+
+@inject NavigationManager NavigationManager
+
+<h3>Servers</h3>
+<br />
+<br />
+
+
+
+<div class="container-fluid text-center">
+	<div class="row">
+		@foreach (var city in cities) {
+			<div class="col">
+				<div class="card @(selectedCity.Equals(city, StringComparison.OrdinalIgnoreCase) ? "border-primary": "")" style="width: 15rem;">
+					<img src="@($"/images/{city}.jpg")" class="card-img-top" alt="@city" style="max-height: 8rem;">
+					<div class="card-body">
+						<button type="button" class="btn btn-primary" @onclick="@(() => { SelectCity(city); })">@city</button>
+					</div>
+				</div>
+			</div>
+		}
+	</div>
+</div>
+
+<div class="input-group mb-3">
+	<input type="text" class="form-control" placeholder="Search Servers" @bind-value="serverFilter" @bind-value:event="oninput"/>
+	<button class="btn btn-outline-secondary" type="button" id="button-search" @onclick="HandleSearch">Search</button>
+</div>
+
+<br />
+	<a href="/servers/add" class="btn btn-primary">Add Server</a>
+<br />
+
+
+<ul>
+	@foreach (var server in servers) {
+		<li>
+			@server.Name in @server.City is <span style="color: @(server.IsOnline ? "green" : "red")">@(server.IsOnline ? "online" : "offline")</span>
+			&nbsp;
+			<a href="/servers/@server.ServerId" class="btn btn-link">Edit</a>
+			
+			&nbsp;
+			<EditForm Enhance="true" Model="server" FormName="@($"form-server-{server.ServerId}")" OnValidSubmit="@(() => { DeleteServer(server.ServerId); })">
+				<button type="submit" class="btn btn-primary">Delete</button>
+			</EditForm>
+		</li>
+	}
+
+</ul>
+
+@code {
+	private string selectedCity = "Perth";
+	private List<string> cities = CitiesRepository.GetCities();
+	private List<Server> servers = ServersRepository.GetServerByCity("Perth");
+
+	private string _serverFilter = "";
+	private string serverFilter {
+		get => _serverFilter;
+		set {
+			_serverFilter = value;
+			// do whatever you want here
+			HandleSearch();
+		}
+	}
+
+	private void DeleteServer(int serverId) {
+		if (serverId > 0) {
+			ServersRepository.DeleteServer(serverId);
+			NavigationManager.Refresh();
+		}
+	}
+
+	private void SelectCity(string city) {
+		this.selectedCity = city;
+		this.servers = ServersRepository.GetServerByCity(this.selectedCity);
+	}
+
+	// private void HandleServerFilterChange(ChangeEventArgs args) {
+	// 	serverFilter = args.Value?.ToString() ?? string.Empty;
+	// }
+
+	private void HandleSearch() {
+		this.servers = ServersRepository.SearchServers(serverFilter);
+		this.selectedCity = string.Empty;
+	}
+}
+
+
 
 -------------------------------------------------------------------------------------------
 --
