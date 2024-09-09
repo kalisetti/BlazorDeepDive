@@ -27,6 +27,8 @@
 <a href="/servers/add" class="btn btn-primary">Add Server</a>
 <br />
 
+<ServerComponent></ServerComponent>
+
 <ul>
 	@foreach (var server in servers) {
 		<li>
@@ -35,7 +37,7 @@
 			<a href="/servers/@server.ServerId" class="btn btn-link">Edit</a>
 			
 			&nbsp;
-			<EditForm Model="server" FormName="@($"form-server-{server.ServerId}")" OnValidSubmit="@(() => { DeleteServer(server.ServerId); })">
+			<EditForm Enhance="true" Model="server" FormName="@($"form-server-{server.ServerId}")" OnValidSubmit="@(() => { DeleteServer(server.ServerId); })">
 				<button type="submit" class="btn btn-primary">Delete</button>
 			</EditForm>
 		</li>

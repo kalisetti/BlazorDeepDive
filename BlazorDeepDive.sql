@@ -482,6 +482,23 @@ namespace ServerManagement.Models {
 -- 20. Navigation with NavigationManager & Dependency Injection
 --
 
+* We can navigate to pages from within C# using NavigationManager.
+	We just need to inject and use.
+
+	@inject NavigationManager NavigationManager
+	
+	private void Submit() {
+		if (server != null) {
+			ServersRepository.UpdateServer(server.ServerId, server);
+		}
+
+		NavigationManager.NavigateTo("/servers");
+	}
+
+* So, what does this inject do? Usually if we want to use a class inside another class,
+	we usually instantiate it. So we inject when we dont want to have a dependecy. 
+	
+
 --
 -- 23. Use EditForm to delete data
 --
@@ -498,9 +515,96 @@ namespace ServerManagement.Models {
 --
 --
 
+--
+-- 25. What is Interactivity
+--
+
+* Traditionally the web pages are reloaded with every request to a new page, so loading
+	portion of the page without reloading the entire page is called interactivity.
+	
+* Interactivity here doesnt mean the interaction between the user and the browser,
+	instead it is the interaction between browser and server.
 
 
+--
+-- 26. Use Enhanced Navigation in Blazor SSR for interactivity
+--
 
+* By default Blazor apps are enabled with interactivity, this is done through the following 
+	js file added by default in App.razor
+	
+	<script src="_framework/blazor.web.js"></script>
+	
+* If you remove the above script reference, you can notice that all pages are loading
+	in the browser when visited, that means they work almost like a static website
+	where every page request ends up in loading in the browser.
+	
+* You can see how this interactivity works by simply going to developer tools, and monitor
+	the html body part being replaced with every request. And also, you can notice in 
+	network request log, the request type is shown as fetch(method calling server) instead
+	of Document which is for entire page loading.
+
+
+--
+-- 27. Use enhanced form handling in Blazor SSR for interactivity
+--
+
+* When we submit our html forms, the blazor app is reloading the page. So to make it use
+	partial loading/rendering, we could simply add `Enhance="true"` parameter to our
+	forms.
+	
+	<EditForm Enhance="true" Model="server" FormName="@($"form-server-{server.ServerId}")" OnValidSubmit="@(() => { DeleteServer(server.ServerId); })">
+		<button type="submit" class="btn btn-primary">Delete</button>
+	</EditForm>
+
+* So basically when we post an html, it submits to server, whereas in this case the
+	html post request is intercepted by blazor.web.js which calls the fetch api
+	and updates the DOM.
+
+--
+-- 28. What is Server Interactivity?
+--
+
+* From our previous examples we noticed that our blazor.web.js makes the fetch API 
+	requests to server and patch the differences in DOM. So this is a request and
+	response model. Whenever we request a page or interact, the request goes to the
+	server and server processes the request and loads the objects into internal memory and
+	send it back in a response and dispose the objects in the local memory.
+	
+* Actual server interactivity also rely on blazor.web.js, but this time the request and
+	response is difference.
+	
+	So instead of using blazor.web.js to send fetch api requests to the web server,
+	Server interactivity uses blazor.web.js file to Setup a websocket channel. And
+	that is called a signalR channel. When the user interacts with the DOM, the
+	respective updates are sent back to the server via these channel.
+
+	In this case, the DOM tree copy is maintained in server and everytime there are
+	changes to the DOM elements, the server processes the requests and generates a new copy
+	of the tree. And the server compares the previous image of the tree that is being held
+	in the memory with the one generated fresh and send only the changes to the 
+	blazor.web.js. And blazor.web.js patches the DOM with these updates.
+
+
+--
+-- 29. Enable Server Interactivity how to make a component interactive
+--
+
+* We can remove the earlier `Enhanced="true"` formhandling interactivity, and use server
+	interactivity.
+	
+	
+--
+-- 30. Interactivity Location
+--
+
+--
+-- 31. Server Interactivity in Visual Studio project template
+--
+
+--
+-- 32. Three main aspects of interactive components
+--
 
 -------------------------------------------------------------------------------------------
 --
