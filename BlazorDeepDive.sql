@@ -650,7 +650,7 @@ namespace ServerManagement.Models {
 * But it still doesnt work, because we haven''t specified which component/page is to be
 	made interactive. We can simply mention the rendermode in the component like this.
 	
-	<ServerComponent></ServerComponent>
+	<ServerComponent @rendermode="InteractiveServer"></ServerComponent>
 	
 
 	
@@ -658,9 +658,45 @@ namespace ServerManagement.Models {
 -- 30. Interactivity Location
 --
 
+Category 1: Page/Component Level
+	* Location 1, We can add the interactivity on the component itself
+		
+		<ServerComponent @rendermode="InteractiveServer"></ServerComponent>
+		
+	* Location 2, Or at the top of its parent component, when you specify at the page
+		level all the components inside the page all use server interactivity.
+		
+		@rendermode InteractiveServer
+		
+	* Location 3, Or you set it inside the component
+
+Category 2: Global Level
+
+	* Set it on the root component of the app in 'App.razor'
+	
+		So the following changes from:
+		
+		<body>
+			<Routes />
+			<script src="_framework/blazor.web.js"></script>
+		</body>
+		
+		to:
+		
+		<body>
+			<Routes @rendermode="InteractiveServer"/>
+			<script src="_framework/blazor.web.js"></script>
+		</body>
+
+
+MICROSOFT RECOMMENDED WAY IS:
+	<ServerComponent @rendermode="InteractiveServer"></ServerComponent>
+
 --
 -- 31. Server Interactivity in Visual Studio project template
 --
+
+
 
 --
 -- 32. Three main aspects of interactive components
