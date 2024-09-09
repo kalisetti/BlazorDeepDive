@@ -696,11 +696,226 @@ MICROSOFT RECOMMENDED WAY IS:
 -- 31. Server Interactivity in Visual Studio project template
 --
 
+* We can also specify the rendermode when we create our project in visual studio 
 
+	+ When you select "Interactive Server Mode" -> "Server", it will make those two changes
+		we have seen earlier in "Program.cs"
 
 --
 -- 32. Three main aspects of interactive components
 --
+
+* Once you use interactive component, the application becomes stateful application,
+	  at least for that component.
+	  
+* Un-stateful applications are the traditional request and response models where server
+	just disposes anything it holds after sending the response back.
+	
+* So there are 3 aspects of interactive components
+
+	1) View
+	2) Event
+	3) State
+
+
+--
+-- 33. Event Handling (Passing Data)
+--
+
+* We can pass the parameter like this
+
+	<button type="button" class="btn btn-primary" @onclick="@(() => { SelectCity(city) })">@city</button>
+
+	-- /Components/Pages/Servers.razor
+	<div class="container-fluid text-center">
+		<div class="row">
+			@foreach (var city in cities) {
+				<div class="col">
+					<div class="card" style="width: 15rem;">
+						<img src="@($"/images/{city}.jpg")" class="card-img-top" alt="@city" style="max-height: 8rem;">
+						<div class="card-body">
+							<button type="button" class="btn btn-primary" @onclick="@(() => { SelectCity(city) })">@city</button>
+						</div>
+					</div>
+				</div>
+			}
+		</div>
+	</div>
+
+
+-- /Components/Pages/Servers.razor
+@page "/servers"
+@rendermode InteractiveServer
+
+@inject NavigationManager NavigationManager
+
+<h3>Servers</h3>
+<br />
+<br />
+
+
+
+<div class="container-fluid text-center">
+	<div class="row">
+		@foreach (var city in cities) {
+			<div class="col">
+				<div class="card" style="width: 15rem;">
+					<img src="@($"/images/{city}.jpg")" class="card-img-top" alt="@city" style="max-height: 8rem;">
+					<div class="card-body">
+						<button type="button" class="btn btn-primary" @onclick="@(() => { SelectCity(city); })">@city</button>
+					</div>
+				</div>
+			</div>
+		}
+	</div>
+</div>
+
+<br />
+<a href="/servers/add" class="btn btn-primary">Add Server</a>
+<br />
+
+<ServerComponent @rendermode="InteractiveServer"></ServerComponent>
+
+<ul>
+	@foreach (var server in servers) {
+		<li>
+			@server.Name in @server.City is <span style="color: @(server.IsOnline ? "green" : "red")">@(server.IsOnline ? "online" : "offline")</span>
+			&nbsp;
+			<a href="/servers/@server.ServerId" class="btn btn-link">Edit</a>
+			
+			&nbsp;
+			<EditForm Enhance="true" Model="server" FormName="@($"form-server-{server.ServerId}")" OnValidSubmit="@(() => { DeleteServer(server.ServerId); })">
+				<button type="submit" class="btn btn-primary">Delete</button>
+			</EditForm>
+		</li>
+	}
+
+</ul>
+
+@code {
+	private List<string> cities = CitiesRepository.GetCities();
+	private List<Server> servers = ServersRepository.GetServers();
+
+	private void DeleteServer(int serverId) {
+		if (serverId > 0) {
+			ServersRepository.DeleteServer(serverId);
+			NavigationManager.Refresh();
+		}
+	}
+
+	private void SelectCity(string cityName) {
+		this.servers = ServersRepository.GetServerByCity(cityName);
+	}
+}
+
+
+--
+-- 34. Assignment 4: Highlight current City
+--
+
+
+--
+-- 36. Update. state variables with Onchange event
+--
+
+* Onchange when we call a method without any parameters, by default blazor passes some 
+	kind of parameters into the function.
+	
+
+-- /Components/Pages/Servers.razor
+@page "/servers"
+@rendermode InteractiveServer
+
+@inject NavigationManager NavigationManager
+
+<h3>Servers</h3>
+<br />
+<br />
+
+
+
+<div class="container-fluid text-center">
+	<div class="row">
+		@foreach (var city in cities) {
+			<div class="col">
+				<div class="card @(selectedCity.Equals(city, StringComparison.OrdinalIgnoreCase) ? "border-primary": "")" style="width: 15rem;">
+					<img src="@($"/images/{city}.jpg")" class="card-img-top" alt="@city" style="max-height: 8rem;">
+					<div class="card-body">
+						<button type="button" class="btn btn-primary" @onclick="@(() => { SelectCity(city); })">@city</button>
+					</div>
+				</div>
+			</div>
+		}
+	</div>
+</div>
+
+<div class="input-group mb-3">
+	<input type="text" class="form-control" placeholder="Search Servers" @onchange="HandleServerFilterChange" />
+	<button class="btn btn-outline-secondary" type="button" id="button-search" @onclick="HandleSearch">Search</button>
+</div>
+
+<br />
+	<a href="/servers/add" class="btn btn-primary">Add Server</a>
+<br />
+
+
+<ul>
+	@foreach (var server in servers) {
+		<li>
+			@server.Name in @server.City is <span style="color: @(server.IsOnline ? "green" : "red")">@(server.IsOnline ? "online" : "offline")</span>
+			&nbsp;
+			<a href="/servers/@server.ServerId" class="btn btn-link">Edit</a>
+			
+			&nbsp;
+			<EditForm Enhance="true" Model="server" FormName="@($"form-server-{server.ServerId}")" OnValidSubmit="@(() => { DeleteServer(server.ServerId); })">
+				<button type="submit" class="btn btn-primary">Delete</button>
+			</EditForm>
+		</li>
+	}
+
+</ul>
+
+@code {
+	private string selectedCity = "Perth";
+	private List<string> cities = CitiesRepository.GetCities();
+	private List<Server> servers = ServersRepository.GetServerByCity("Perth");
+	private string serverFilter = "";
+
+	private void DeleteServer(int serverId) {
+		if (serverId > 0) {
+			ServersRepository.DeleteServer(serverId);
+			NavigationManager.Refresh();
+		}
+	}
+
+	private void SelectCity(string city) {
+		this.selectedCity = city;
+		this.servers = ServersRepository.GetServerByCity(this.selectedCity);
+	}
+
+	private void HandleServerFilterChange(ChangeEventArgs args) {
+		serverFilter = args.Value?.ToString() ?? string.Empty;
+	}
+
+	private void HandleSearch() {
+		this.servers = ServersRepository.SearchServers(serverFilter);
+		this.selectedCity = string.Empty;
+	}
+}
+
+
+--
+-- 37. Two way data binding
+--
+
+* So far we noticed that, we start with making changes to "View" which triggers the "Events",
+	and the events update the "State" variables which in turn updates the "View"
+	
+* With two way binding we link the "View" directly with the "State", so we can change our 
+	previous code and get rid of HandleServerFilterChange and the onchange event alltogether.
+	Instead we can use two way binding to directly update the value entered into our search
+	field into the state variable "serverFilter".
+	
 
 -------------------------------------------------------------------------------------------
 --

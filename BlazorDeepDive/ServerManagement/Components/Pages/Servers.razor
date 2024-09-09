@@ -1,4 +1,5 @@
 ﻿@page "/servers"
+@rendermode InteractiveServer
 
 @inject NavigationManager NavigationManager
 
@@ -12,10 +13,10 @@
 	<div class="row">
 		@foreach (var city in cities) {
 			<div class="col">
-				<div class="card" style="width: 15rem;">
+				<div class="card @(selectedCity.Equals(city, StringComparison.OrdinalIgnoreCase) ? "border-primary": "")" style="width: 15rem;">
 					<img src="@($"/images/{city}.jpg")" class="card-img-top" alt="@city" style="max-height: 8rem;">
 					<div class="card-body">
-						<button type="button" class="btn btn-primary">@city</button>
+						<button type="button" class="btn btn-primary" @onclick="@(() => { SelectCity(city); })">@city</button>
 					</div>
 				</div>
 			</div>
@@ -23,11 +24,15 @@
 	</div>
 </div>
 
+<div class="input-group mb-3">
+	<input type="text" class="form-control" placeholder="Search Servers" @onchange="HandleServerFilterChange" />
+	<button class="btn btn-outline-secondary" type="button" id="button-search" @onclick="HandleSearch">Search</button>
+</div>
+
 <br />
-<a href="/servers/add" class="btn btn-primary">Add Server</a>
+	<a href="/servers/add" class="btn btn-primary">Add Server</a>
 <br />
 
-<ServerComponent @rendermode="InteractiveServer"></ServerComponent>
 
 <ul>
 	@foreach (var server in servers) {
@@ -46,13 +51,29 @@
 </ul>
 
 @code {
+	private string selectedCity = "Perth";
 	private List<string> cities = CitiesRepository.GetCities();
-	private List<Server> servers = ServersRepository.GetServers();
+	private List<Server> servers = ServersRepository.GetServerByCity("Perth");
+	private string serverFilter = "";
 
 	private void DeleteServer(int serverId) {
 		if (serverId > 0) {
 			ServersRepository.DeleteServer(serverId);
 			NavigationManager.Refresh();
 		}
+	}
+
+	private void SelectCity(string city) {
+		this.selectedCity = city;
+		this.servers = ServersRepository.GetServerByCity(this.selectedCity);
+	}
+
+	private void HandleServerFilterChange(ChangeEventArgs args) {
+		serverFilter = args.Value?.ToString() ?? string.Empty;
+	}
+
+	private void HandleSearch() {
+		this.servers = ServersRepository.SearchServers(serverFilter);
+		this.selectedCity = string.Empty;
 	}
 }
