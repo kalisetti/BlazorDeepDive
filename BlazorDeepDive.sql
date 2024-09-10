@@ -1058,6 +1058,43 @@ MICROSOFT RECOMMENDED WAY IS:
 
 
 
+--
+-- 38. Interactive EditForm
+--
+
+* When we make our page containing EditForm element, it basically becomes interactive, 
+	that means when we submit the form, there wont be a separate post request to the server,
+	instead it will use the signalR channel just like any other interactivity.
+	
+	- When we have interactivity, we do not need "FormName" attribute in "EditForm"
+	- We dont need to specify the "[SupplyParameterFromForm]" as well
+	- When we press the submit button the respective event handler method Sumit() is called.
+		So instead of submitting the form data as a separate request, it just uses the
+		signalR channel.
+
+--
+-- 39. Use @key to improve list-rendering performance
+--
+
+* When we use loop and create li elements, there is a problem when each of the record dont 
+	have a unique id, the application goes crazy and acts bit weired.
+	
+	- Lets take an example, we currently have the servers.razor page which is listing the 
+	"servers" as li element. If we add a button in the page to insert a new element 
+	at position 0 in "servers",
+	every time the button is clicked, we can notice that all the list elements are getting 
+	refreshed in the developer console. Whereas we expect the new element only to be added
+	without effecting anything else on the page.
+	
+	To avoid this issue, we can use the key attribute '@key="server.ServerId"' on the list
+	elements. 
+	
+	One thing to note here is, Blazor wont add multiple elements with the same key.
+	
+	
+	<li @key="server.ServerId">
+	
+	
 -------------------------------------------------------------------------------------------
 --
 -- Section 4: Course Project(Part 1): To-Do List App Basics
