@@ -1095,6 +1095,60 @@ MICROSOFT RECOMMENDED WAY IS:
 	<li @key="server.ServerId">
 	
 	
+	
+--
+-- 40. Use Virtualization to improve list-rendering performance
+--
+
+* Usually when we have a lot of records being fetched and listed in the page, we can notice
+	that our page pauses for few seconds while it fetches all the records. After the it 
+	creates all the html elements, this list can be huge, same can be noticed if we inspect
+	the list element.
+	
+	So the virtualization basically fetches the rows as we scroll. So Blazor has something
+	called Virtualization, virualization basically replaces the for loop. So when we use
+	virtualize, there is no wait time, items are loaded instantly. Behind the scenes
+	blazor.web.js file is the one doing all this magic, it looks at the viewport height
+	and based on the element height, it renders the items needed for loading.
+	
+	Conditions to use the virtualization:
+		1. We have a for loop and there are too many items.
+		2. When the items hight for the generated element is same across all the elements.
+		3. If there are too many items.
+	
+	*** We can change from
+	
+	<ul>
+		@foreach (var server in servers) {
+			<li @key="server.ServerId">
+				@server.Name in @server.City is <span style="color: @(server.IsOnline ? "green" : "red")">@(server.IsOnline ? "online" : "offline")</span>
+				&nbsp;
+				<a href="/servers/@server.ServerId" class="btn btn-link">Edit</a>
+				
+				&nbsp;
+				<EditForm Enhance="true" Model="server" FormName="@($"form-server-{server.ServerId}")" OnValidSubmit="@(() => { DeleteServer(server.ServerId); })">
+					<button type="submit" class="btn btn-primary">Delete</button>
+				</EditForm>
+			</li>
+		}
+
+	</ul>
+
+	** to
+
+	<Virtualize Items="this.servers" Context="server">
+		<li @key="server.ServerId">
+			@server.Name in @server.City is <span style="color: @(server.IsOnline ? "green" : "red")">@(server.IsOnline ? "online" : "offline")</span>
+			&nbsp;
+			<a href="/servers/@server.ServerId" class="btn btn-link">Edit</a>
+			
+			&nbsp;
+			<EditForm Enhance="true" Model="server" FormName="@($"form-server-{server.ServerId}")" OnValidSubmit="@(() => { DeleteServer(server.ServerId); })">
+				<button type="submit" class="btn btn-primary">Delete</button>
+			</EditForm>
+		</li>
+	</Virtualize>
+
 -------------------------------------------------------------------------------------------
 --
 -- Section 4: Course Project(Part 1): To-Do List App Basics
