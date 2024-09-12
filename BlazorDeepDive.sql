@@ -1369,7 +1369,7 @@ Servers.razor
 
 * Lets pass City name from Servers.razor to the child component ServerListComponent.razor
 
-1. Define a property in the child component.
+1. Define a public property in the child component.
 
 	public string? CityName { get; set; }
 	
@@ -1425,6 +1425,11 @@ Servers.razor
 		}
 	}
 }
+
+
+--
+-- 49. Assignment 5: Extract the Server Component from ServerListComponent.razor
+--
 
 -------------------------------------------------------------------------------------------
 --
