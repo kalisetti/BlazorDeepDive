@@ -34,26 +34,12 @@
 <br />
 
 
-<ul>
-	<Virtualize Items="this.servers" Context="server">
-		<li @key="server.ServerId">
-			@server.Name in @server.City is <span style="color: @(server.IsOnline ? "green" : "red")">@(server.IsOnline ? "online" : "offline")</span>
-			&nbsp;
-			<a href="/servers/@server.ServerId" class="btn btn-link">Edit</a>
-			
-			&nbsp;
-			<EditForm Enhance="true" Model="server" FormName="@($"form-server-{server.ServerId}")" OnValidSubmit="@(() => { DeleteServer(server.ServerId); })">
-				<button type="submit" class="btn btn-primary">Delete</button>
-			</EditForm>
-		</li>
-	</Virtualize>
-
-</ul>
+<ServerListComponent @rendermode="InteractiveServer"></ServerListComponent>
 
 @code {
 	private string selectedCity = "Perth";
 	private List<string> cities = CitiesRepository.GetCities();
-	private List<Server> servers = ServersRepository.GetServerByCity("Perth");
+	
 
 	private string _serverFilter = "";
 	private string serverFilter {
@@ -65,16 +51,11 @@
 		}
 	}
 
-	private void DeleteServer(int serverId) {
-		if (serverId > 0) {
-			ServersRepository.DeleteServer(serverId);
-			NavigationManager.Refresh();
-		}
-	}
+	
 
 	private void SelectCity(string cityName) {
 		this.selectedCity = cityName;
-		this.servers = ServersRepository.GetServerByCity(this.selectedCity);
+		//this.servers = ServersRepository.GetServerByCity(this.selectedCity);
 
 		// Temporarily injecting 2000 servers
 		// if (cityName == "Perth") {
@@ -89,7 +70,7 @@
 	// }
 
 	private void HandleSearch() {
-		this.servers = ServersRepository.SearchServers(serverFilter);
+		//this.servers = ServersRepository.SearchServers(serverFilter);
 		this.selectedCity = string.Empty;
 	}
 }

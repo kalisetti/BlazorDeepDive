@@ -1345,6 +1345,17 @@ namespace ToDoApp.Models {
 --
 --
 
+--
+-- 46. Thinking in Components
+--
+
+* Basically instead of having everything in one page as a monolithic component, we better
+	break it down to multiple resuable components.
+	
+--
+-- 47. Extract the ServerList Component
+--
+
 
 
 -------------------------------------------------------------------------------------------
