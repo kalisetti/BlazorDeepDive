@@ -1352,11 +1352,79 @@ namespace ToDoApp.Models {
 * Basically instead of having everything in one page as a monolithic component, we better
 	break it down to multiple resuable components.
 	
+So we will break down our main component
+
+Servers.razor
+	- ServerListComponent.razor
+	
 --
 -- 47. Extract the ServerList Component
 --
 
+* Moved the code out of Servers.razor and created a new component called ServerListComponent.razor
 
+--
+-- 48. Use Component Parameters to communicate from parent to child components
+--
+
+* Lets pass City name from Servers.razor to the child component ServerListComponent.razor
+
+1. Define a property in the child component.
+
+	public string? CityName { get; set; }
+	
+2. Turn this parameter into a parameter, by using the Csharp parameter
+
+	[Parameter]
+	public string? CityName { get; set; }
+	
+3. Go to the parent component and pass the CityName
+
+	<ServerListComponent @rendermode="InteractiveServer" CityName="Melbourne"></ServerListComponent>
+	
+
+-- Parent
+<ServerListComponent @rendermode="InteractiveServer" CityName="@this.selectedCity"></ServerListComponent>
+
+-- Child
+
+@inject NavigationManager NavigationManager
+
+@if (this.servers != null && this.servers.Count > 0) {
+	<ul>
+		<Virtualize Items="this.servers" Context="server">
+			<li @key="server.ServerId">
+				@server.Name in @server.City is <span style="color: @(server.IsOnline ? "green" : "red")">@(server.IsOnline ? "online" : "offline")</span>
+				&nbsp;
+				<a href="/servers/@server.ServerId" class="btn btn-link">Edit</a>
+
+				&nbsp;
+				<EditForm Enhance="true" Model="server" FormName="@($"form-server-{server.ServerId}")" OnValidSubmit="@(() => { DeleteServer(server.ServerId); })">
+					<button type="submit" class="btn btn-primary">Delete</button>
+				</EditForm>
+			</li>
+		</Virtualize>
+	</ul>
+}
+
+@code {
+	[Parameter]
+	public string? CityName { get; set; }
+
+	private List<Server>? servers;
+
+	// This is called when the parameters are set with values
+	protected override void OnParametersSet() {
+		servers = ServersRepository.GetServerByCity(CityName?? "Toronto");
+	}
+
+	private void DeleteServer(int serverId) {
+		if (serverId > 0) {
+			ServersRepository.DeleteServer(serverId);
+			NavigationManager.Refresh();
+		}
+	}
+}
 
 -------------------------------------------------------------------------------------------
 --
