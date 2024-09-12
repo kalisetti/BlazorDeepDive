@@ -1159,6 +1159,184 @@ MICROSOFT RECOMMENDED WAY IS:
 -- 41. Requirement of To do list app
 --
 
+Tasks:
+	1. Display a list of Tasks
+	2. Add Task
+	3. Input Task
+	4. Mark Task as Completed
+
+--
+-- 42. Display a list of tasks use case
+--
+
+
+--
+-- 43. Add Task use case
+--
+
+--
+-- 44. Input task name use case
+--
+
+
+--
+-- 45. Mark task as completed
+--
+
+* One thing to notice here is, when we have "@bind-value" already defined for an element,
+	we cannot have "@onchange" event as well as it is basically a duplicate to bind-value.
+	So blazor would say duplication something like that.
+	
+	So we can do an alternate approached here.
+
+	*** For example we have the following code in '/Components/Pages/Servers.razor',
+		when I click on the checkbox it is updating my item.IsCompleted accordingly.
+		But I also like to update the item.DateCompleted value.
+	
+	<div class="col-1" style="width: 30px;">
+		<input type="checkbox" 
+			class="form-check-input" 
+			style="vertical-align: middle"
+			@bind-value="item.IsCompleted" 
+			checked="@item.IsCompleted" />
+	</div>
+
+
+	*** Go to the definition of item.IsCompleted in '/Models/ToDoItem.cs'
+	
+	**** Change it from
+	
+	public bool IsCompleted { get; set; }
+	
+	
+	**** to
+	
+	public bool _isCompleted;
+	public bool IsCompleted { get => _isCompleted;
+		set { 
+			_isCompleted = value;
+
+			if (value) { 
+				DateCompleted = DateTime.Now;
+			}
+		} }
+	
+	
+--
+-- FINAL SOLUTION
+--	
+
+-- /Models/ToDoItem.cs
+using System.ComponentModel.DataAnnotations;
+
+namespace ToDoApp.Models {
+	public class ToDoItem {
+		public int Id { get; set; }
+		public string Name { get; set; } = "";
+
+		public bool _isCompleted;
+		public bool IsCompleted {
+			get => _isCompleted;
+			set {
+				_isCompleted = value;
+
+				if (value) {
+					DateCompleted = DateTime.Now;
+				}
+			}
+		}
+		public DateTime DateCompleted { get; set; }
+	}
+}
+
+
+-- /Models/ToDoItemsRepository.cs
+namespace ToDoApp.Models {
+	public class ToDoItemsRepository {
+		private static List<ToDoItem> items = new List<ToDoItem>() { 
+			new ToDoItem { Id = 1, Name = "Task1"},
+			new ToDoItem { Id = 2, Name = "Task2"},
+			new ToDoItem { Id = 3, Name = "Task3"},
+			new ToDoItem { Id = 4, Name = "Task4"},
+			new ToDoItem { Id = 5, Name = "Task5"},
+		};
+
+		public static List<ToDoItem> GetItems() {
+			var sortedItems = items.
+				OrderBy(item => item.IsCompleted)
+				.ThenByDescending(item => item.Id)
+				.ToList();
+
+			return sortedItems;
+		}
+
+		public static void AddItem(ToDoItem item) {
+			int maxId = items.Max(t => t.Id);
+			item.Id = maxId + 1;
+			items.Insert(0, item);
+		}
+	}
+}
+
+
+-- /Components/Pages.ToDoList.razor
+@page "/todolist"
+@rendermode InteractiveServer
+
+
+<h3>To Do</h3>
+<button type="button" class="btn btn-outline-primary" @onclick="@( ()=> { AddTask(); })">Add Task</button>
+
+<br />
+<br />
+@if (items != null && items.Count > 0) {
+	<ul class="list-unstyled">
+		@foreach (var item in items) {
+			<li @key="item.Id">
+				<div class="row mb-2">
+					<div class="col-1" style="width: 30px;">
+						<input type="checkbox" 
+							class="form-check-input" 
+							style="vertical-align: middle"
+							@bind-value="item.IsCompleted" 
+							checked="@item.IsCompleted" />
+					</div>
+					<div class="col">
+						@if (item.IsCompleted) {
+							<input type="text"
+								   class="form-control border-0 text-decoration-line-through"
+								   style="vertical-align: middle"
+								   @bind-value="item.Name" 
+								   disabled />
+						} else {
+							<input type="text"
+								   class="form-control border-0"
+								   style="vertical-align: middle"
+								   @bind-value="item.Name" />
+						}
+						
+					</div>
+					<div class="col">
+						@if (item.IsCompleted) {
+							<text>Completed at @item.DateCompleted.ToLongDateString()</text>
+						}
+					</div>
+				</div>
+			</li>
+		}
+	</ul>
+}
+
+@code {
+	private List<ToDoItem> items = ToDoItemsRepository.GetItems();
+
+	private void AddTask() {
+		ToDoItemsRepository.AddItem(new ToDoItem { Name = "New task" });
+		items = ToDoItemsRepository.GetItems();
+	}
+}
+
+
 
 
 -------------------------------------------------------------------------------------------
