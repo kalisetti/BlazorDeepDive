@@ -8,21 +8,8 @@
 <br />
 
 
+<CityListComponent @rendermode="InteractiveServer"></CityListComponent>
 
-<div class="container-fluid text-center">
-	<div class="row">
-		@foreach (var city in cities) {
-			<div class="col">
-				<div class="card @(selectedCity.Equals(city, StringComparison.OrdinalIgnoreCase) ? "border-primary": "")" style="width: 15rem;">
-					<img src="@($"/images/{city}.jpg")" class="card-img-top" alt="@city" style="max-height: 8rem;">
-					<div class="card-body">
-						<button type="button" class="btn btn-primary" @onclick="@(() => { SelectCity(city); })">@city</button>
-					</div>
-				</div>
-			</div>
-		}
-	</div>
-</div>
 
 <div class="input-group mb-3">
 	<input type="text" class="form-control" placeholder="Search Servers" @bind-value="serverFilter" @bind-value:event="oninput"/>
@@ -34,13 +21,9 @@
 <br />
 
 
-<ServerListComponent @rendermode="InteractiveServer" CityName="@this.selectedCity"></ServerListComponent>
+<ServerListComponent @rendermode="InteractiveServer" CityName="Perth"></ServerListComponent>
 
 @code {
-	private string selectedCity = "Perth";
-	private List<string> cities = CitiesRepository.GetCities();
-	
-
 	private string _serverFilter = "";
 	private string serverFilter {
 		get => _serverFilter;
@@ -51,26 +34,12 @@
 		}
 	}
 
-	
-
-	private void SelectCity(string cityName) {
-		this.selectedCity = cityName;
-		//this.servers = ServersRepository.GetServerByCity(this.selectedCity);
-
-		// Temporarily injecting 2000 servers
-		// if (cityName == "Perth") {
-		// 	for (int i = 16; i < 2000; i++) {
-		// 		servers.Add(new Server { ServerId = i, Name = $"Server{i}", City = "Perth" });
-		// 	}
-		// }
-	}
-
 	// private void HandleServerFilterChange(ChangeEventArgs args) {
 	// 	serverFilter = args.Value?.ToString() ?? string.Empty;
 	// }
 
 	private void HandleSearch() {
 		//this.servers = ServersRepository.SearchServers(serverFilter);
-		this.selectedCity = string.Empty;
+		//this.selectedCity = string.Empty;
 	}
 }

@@ -1431,6 +1431,18 @@ Servers.razor
 -- 49. Assignment 5: Extract the Server Component from ServerListComponent.razor
 --
 
+
+--
+-- 51. Extract city components
+--
+
+
+--
+-- 52. Use EventCallback to pass info from child to parent components
+--
+
+
+
 -------------------------------------------------------------------------------------------
 --
 -- Section 6: Course Project (Part 2): Componentize our To-Do List App
