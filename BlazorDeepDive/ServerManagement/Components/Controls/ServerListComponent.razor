@@ -14,11 +14,20 @@
 	[Parameter]
 	public string? CityName { get; set; }
 
+	[Parameter]
+	public string SearchFilter { get; set; } = "";
+
 	private List<Server>? servers;
 
 	// This is called when the parameters are set with values
 	protected override void OnParametersSet() {
-		servers = ServersRepository.GetServerByCity(CityName?? "Toronto");
+		if (string.IsNullOrWhiteSpace(this.SearchFilter))
+		{
+			servers = ServersRepository.GetServerByCity(CityName?? "Toronto");
+		}
+		else {
+			servers = ServersRepository.SearchServers(this.SearchFilter);
+		}
 	}
 
 	

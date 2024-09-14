@@ -1441,6 +1441,23 @@ Servers.razor
 -- 52. Use EventCallback to pass info from child to parent components
 --
 
+* EventCallback is supposed to be used by the child component to pass the information
+	back to the parent component. 
+	
+	In this example, we need send back which city is clicked to the parent.
+	
+* We trigger EventCallback from the child, and handle it in the parent component.
+
+
+--
+-- 53. Assignment 6: Componentize the search bar
+--
+
+
+--
+-- 54. Assignment 6: Answer
+--
+
 
 
 -------------------------------------------------------------------------------------------
