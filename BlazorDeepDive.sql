@@ -1449,6 +1449,62 @@ Servers.razor
 * We trigger EventCallback from the child, and handle it in the parent component.
 
 
+-- /Components/Controls/CityListComponent.razor
+@if (cities != null && cities.Count > 0) {
+	<div class="container-fluid text-center">
+		<div class="row">
+			@foreach (var city in cities) {
+				<CityComponent 
+					city="@city"
+					selectedCity="@selectedCity"
+				SelectCityCallback="HandleCitySelection"></CityComponent>
+			}
+		</div>
+	</div>
+}
+
+@code {
+
+	private string selectedCity = "Perth";
+
+	private List<string> cities = CitiesRepository.GetCities();
+
+	[Parameter]
+	public EventCallback<string> SelectCityCallback { get; set; }
+
+	private void HandleCitySelection(string cityName) {
+		selectedCity = cityName;
+		SelectCityCallback.InvokeAsync(cityName);	// Sending it back to parent servers component
+	}
+}
+
+
+-- /Components/Controls/CityComponent.razor
+<div class="col">
+	<div class="card @(selectedCity.Equals(city, StringComparison.OrdinalIgnoreCase) ? "border-primary": "")" style="width: 15rem;">
+		<img src="@($"/images/{city}.jpg")" class="card-img-top" alt="@city" style="max-height: 8rem;">
+		<div class="card-body">
+			<button type="button" class="btn btn-primary" @onclick="@(() => { SelectCity(city); })">@city</button>
+		</div>
+	</div>
+</div>
+
+@code {
+	[Parameter]
+	public string? selectedCity { get; set; } = "Perth";
+
+	[Parameter]
+	public string? city { get; set; } = "";
+
+	[Parameter]
+	public EventCallback<string> SelectCityCallback { get; set; }
+
+	private void SelectCity(string cityName) {
+		SelectCityCallback.InvokeAsync(cityName);
+	}
+}
+
+
 --
 -- 53. Assignment 6: Componentize the search bar
 --
@@ -1459,7 +1515,9 @@ Servers.razor
 --
 
 
-
+--
+-- 55. Assignment 6: Answer
+--
 -------------------------------------------------------------------------------------------
 --
 -- Section 6: Course Project (Part 2): Componentize our To-Do List App
