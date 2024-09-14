@@ -1627,6 +1627,23 @@ else {
 	</button>
 }
 
+--
+-- 58. Assignment 7: Display people online
+--
+
+
+--
+-- 58. Assignment 7: Answer
+--
+
+-- /Components/Controls/ServerComponent.razor
+@if (Server.IsOnline == true) {
+	Random random = new Random();
+	int randomNumber = random.Next(0, 500);
+
+	<span>@randomNumber</span>
+}
+
 
 -------------------------------------------------------------------------------------------
 --
