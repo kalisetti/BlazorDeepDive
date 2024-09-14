@@ -1662,6 +1662,65 @@ else {
 * Note, dont put the class names directly on input elements as they dont get CSS scope
 	identifier ids, instead add the class in their parent div element.
 
+
+--
+-- 61. Cascading Parameter theory
+--
+
+* How to pass parameters from parent component to any level of its descendants. This is 
+	where we use cascading parameter.
+	
+	Cascading Parameter can be implemented in two concepts:
+		1. CascadingValue(Component): Use it inside the parent component
+		2. CascadingParameter(Parameter attribute): Use it inside child to receive the value
+			this is being cascaded from the parent.
+
+--
+-- 62. Use cascading parameter to pass values down the component tree
+--
+
+* In this exercise we will change the background city of servers based on the city
+	selected. Remember we currently dont have state variable for the city in
+	"ServerComponent.razor".
+
+* Here we will cascade selectedCity from Servers.razor to bottom level which is 
+	ServerComponent.razor(which is inside ServerListComponent.razor).
+	
+	-- /Components/Pages/Servers.razor
+	1. Cascade the value
+	<CascadingValue Name="SelectedCity" Value="@selectedCity">
+		<ServerListComponent 
+			@rendermode="InteractiveServer" 
+			CityName="@this.selectedCity"
+			SearchFilter="@this.searchFilter"></ServerListComponent>
+	</CascadingValue>
+	
+	2. Define parameter for cascading value in the receiving component
+	
+	-- /Components/Pages/ServerComponent.razor
+	<li @key="Server.ServerId" style="background-color: @GetBackgroundColor()">
+		....
+	</li>
+	
+	@code {
+		[CascadingParameter(Name = "SelectedCity")]
+		public string? SelectedCity { get; set; }
+	
+		private string GetBackgroundColor() {
+			if (SelectedCity != null) {
+				switch (this.SelectedCity) {
+					case "Perth": return "powerblue";
+					case "Melbourne": return "lightgray";
+					case "Brisbane": return "palegreen";
+					case "NSW": return "white";
+					default: return "white";
+				}
+			} else {
+				return "white";
+			}
+		}
+	}
+
 -------------------------------------------------------------------------------------------
 --
 -- Section 6: Course Project (Part 2): Componentize our To-Do List App

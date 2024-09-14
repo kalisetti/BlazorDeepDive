@@ -1,10 +1,9 @@
 ﻿@inject NavigationManager NavigationManager
 
 @if (Server != null) {
+	<li @key="Server.ServerId" style="background-color: @GetBackgroundColor()">
 		<text>
 		@Server.Name in @Server.City is <span style="color: @(Server.IsOnline ? "green" : "red")">@(Server.IsOnline ? "online" : "offline")</span>
-
-		
 
 		&nbsp;
 		<a href="/Servers/@Server.ServerId" class="btn btn-link">Edit</a>
@@ -39,17 +38,34 @@
 			<button type="submit" class="btn btn-primary">Delete</button>
 		</EditForm>
 		</text>
+	</li>
 }
 
 @code {
 	[Parameter]
 	public Server? Server { get; set; }
 
+	[CascadingParameter(Name = "SelectedCity")]
+	public string? SelectedCity { get; set; }
 
 	private void DeleteServer(int ServerId) {
 		if (ServerId > 0) {
 			ServersRepository.DeleteServer(ServerId);
 			NavigationManager.NavigateTo("/Servers", true);
+		}
+	}
+
+	private string GetBackgroundColor() {
+		if (SelectedCity != null) {
+			switch (this.SelectedCity) {
+				case "Perth": return "aliceblue";
+				case "Melbourne": return "lightgray";
+				case "Brisbane": return "palegreen";
+				case "NSW": return "white";
+				default: return "white";
+			}
+		} else {
+			return "white";
 		}
 	}
 }

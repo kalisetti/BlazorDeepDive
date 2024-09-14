@@ -20,12 +20,14 @@
 <br />
 	<a href="/servers/add" class="btn btn-primary">Add Server</a>
 <br />
+<br />
 
-
-<ServerListComponent 
-	@rendermode="InteractiveServer" 
-	CityName="@this.selectedCity"
-	SearchFilter="@this.searchFilter"></ServerListComponent>
+<CascadingValue Name="SelectedCity" Value="@selectedCity">
+	<ServerListComponent 
+		@rendermode="InteractiveServer" 
+		CityName="@this.selectedCity"
+		SearchFilter="@this.searchFilter"></ServerListComponent>
+</CascadingValue>
 
 @code {
 	private string selectedCity = "Perth";

@@ -1,11 +1,9 @@
 ﻿@inject NavigationManager NavigationManager
 
 @if (this.servers != null && this.servers.Count > 0) {
-	<ul>
+	<ul class="list-unstyled">
 		<Virtualize Items="this.servers" Context="server">
-			<li @key="server.ServerId">
-				<ServerComponent Server="server"></ServerComponent>
-			</li>
+			<ServerComponent Server="server"></ServerComponent>
 		</Virtualize>
 	</ul>
 }
