@@ -12,13 +12,16 @@
 }
 
 @code {
+	[Parameter]
+	public EventCallback<string> SelectCityCallback { get; set; }
+
+	public void ClearSelection() {
+		this.selectedCity = string.Empty;
+	}
 
 	private string selectedCity = "Perth";
 
 	private List<string> cities = CitiesRepository.GetCities();
-
-	[Parameter]
-	public EventCallback<string> SelectCityCallback { get; set; }
 
 	private void HandleCitySelection(string cityName) {
 		selectedCity = cityName;

@@ -13,8 +13,11 @@
 			HandleSearch();
 		}
 	}
-	
-	
+
+	public void ClearFilter() {
+		this.serverFilter = string.Empty;
+	}
+
 	[Parameter]
 	public EventCallback<string> SearchServerCallback { get; set; }
 

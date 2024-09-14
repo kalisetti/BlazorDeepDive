@@ -1516,8 +1516,63 @@ Servers.razor
 
 
 --
--- 55. Assignment 6: Answer
+-- 55. Reference a child component
 --
+
+* Here we can create a reference to a component using @ref, and can call its methods
+
+	- In this example, as I start typing in searchbar, it clears the city selection border.
+
+-- /Components/Pages/Servers.cs
+@page "/servers"
+@rendermode InteractiveServer
+
+@inject NavigationManager NavigationManager
+
+<h3>Servers</h3>
+<br />
+<br />
+
+
+<CityListComponent @ref="cityListComponent" SelectCityCallback="HandleCitySelection"></CityListComponent>
+
+
+<SearchBarComponent 
+	@rendermode="InteractiveServer"
+	SearchServerCallback="HandleSearchServer"></SearchBarComponent>
+
+<br />
+	<a href="/servers/add" class="btn btn-primary">Add Server</a>
+<br />
+
+
+<ServerListComponent 
+	@rendermode="InteractiveServer" 
+	CityName="@this.selectedCity"
+	SearchFilter="@this.searchFilter"></ServerListComponent>
+
+@code {
+	private string selectedCity = "Perth";
+	private string searchFilter = "";
+
+	private CityListComponent? cityListComponent;
+
+	private void HandleCitySelection(string cityName) {
+		this.selectedCity = cityName;
+		this.searchFilter = string.Empty;
+	}
+
+	private void HandleSearchServer(string searchFilter) {
+		this.searchFilter = searchFilter;
+
+		cityListComponent?.ClearSelection();
+	}
+}
+
+	
+	
+
+
 -------------------------------------------------------------------------------------------
 --
 -- Section 6: Course Project (Part 2): Componentize our To-Do List App

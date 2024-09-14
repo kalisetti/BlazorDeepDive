@@ -8,11 +8,12 @@
 <br />
 
 
-<CityListComponent SelectCityCallback="HandleCitySelection"></CityListComponent>
+<CityListComponent @ref="cityListComponent" SelectCityCallback="HandleCitySelection"></CityListComponent>
 
 
 <SearchBarComponent 
 	@rendermode="InteractiveServer"
+	@ref="searchBarComponent"
 	SearchServerCallback="HandleSearchServer"></SearchBarComponent>
 
 <br />
@@ -29,15 +30,19 @@
 	private string selectedCity = "Perth";
 	private string searchFilter = "";
 
+	private CityListComponent? cityListComponent;
+	private SearchBarComponent? searchBarComponent;
+
+	private void HandleCitySelection(string cityName) {
+		this.selectedCity = cityName;
+		this.searchFilter = string.Empty;
+
+		searchBarComponent?.ClearFilter();
+	}
 
 	private void HandleSearchServer(string searchFilter) {
 		this.searchFilter = searchFilter;
+
+		cityListComponent?.ClearSelection();
 	}
-
-	
-
-	private void HandleCitySelection(string cityName) {
-		selectedCity = cityName;
-	}
-
 }
