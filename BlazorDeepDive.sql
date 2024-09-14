@@ -1601,6 +1601,33 @@ Servers.razor
 			public bool editingServer = false;
 		}
 
+
+--
+-- 57. Use if statement to output data conditionally
+--
+
+* Just the same if/else condition here, not much
+* Lets add Turn On, Turn Off along with out server listing 
+
+
+-- /Components/Controls/ServerComponent.razor
+
+@if (Server.IsOnline) {
+	<button type="button"
+		class="btn btn-outline-danger"
+		@onclick="@(() => {Server.IsOnline = false; } )">
+		Turn Off
+	</button>
+}
+else {
+	<button type="button"
+			class="btn btn-outline-success"
+			@onclick="@(() => {Server.IsOnline = true; } )">
+		Turn On
+	</button>
+}
+
+
 -------------------------------------------------------------------------------------------
 --
 -- Section 6: Course Project (Part 2): Componentize our To-Do List App
