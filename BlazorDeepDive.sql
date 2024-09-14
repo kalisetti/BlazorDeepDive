@@ -1644,6 +1644,23 @@ else {
 	<span>@randomNumber</span>
 }
 
+--
+-- 60. CSS Isolation
+--
+
+* One way to apply our CSS is in "/wwwroot/app.css" which is included by default, and this
+	applies to our entire application.
+
+* So with the CSS isolation, we can isolate CSS to specific components.
+	- Just create a CSS file within the same folder where the component is along with the
+		full component name and a suffix .css.
+		
+		For Example: 
+			Component: SearchBarControl.razor
+			CSS: SearchBarControl.razor.css
+			
+* Note, dont put the class names directly on input elements as they dont get CSS scope
+	identifier ids, instead add the class in their parent div element.
 
 -------------------------------------------------------------------------------------------
 --
