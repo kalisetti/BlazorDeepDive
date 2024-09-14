@@ -1571,7 +1571,35 @@ Servers.razor
 
 	
 	
+--
+-- 56. Reuse routable component as non-routable component
+--
 
+* Routable components can be used as non-routable components from any component.
+	** However, non-routable component cannot be used as routable component.
+	
+* So basically, you just add the routable component element whereever you like, and pass
+	the parameters when needed.
+	
+* Lets try showing our "EditServer.razor" just below the individual server 
+	in the "ServerComponent.razor" when clicked on edit link.
+
+		-- /Components/Controls/ServerComponent.razor
+		
+		** From
+		<a href="/Servers/@Server.ServerId" class="btn btn-link">Edit</a>
+		
+		** To
+		<button type="button" class="btn btn-link" @onclick="@(() => { this.editingServer = !this.editingServer; })">Edit</button>
+		
+		@if (editingServer) {
+			<ServerManagement.Components.Pages.EditServer 
+				Id="this.Server.ServerId"></ServerManagement.Components.Pages.EditServer>
+		}
+
+		@code {
+			public bool editingServer = false;
+		}
 
 -------------------------------------------------------------------------------------------
 --
