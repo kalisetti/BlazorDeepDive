@@ -1744,6 +1744,124 @@ else {
 	- Here sp means service provider
 	
 	
+--
+-- 64. Use templated components to create generic components
+--
+
+* So far we created city list component to list the cities and server list component to 
+	list the servers, however these are most likely be used in just one page and may not
+	use them in other pages. So these components are very specific, Nothing wrong with it. 
+	
+	So a templated component is a higher level component that is more reusuable. So basically
+	we can create a repeater component and tell it to repeat for cities and servers. 
+	
+	So in our project, we can provide the repeater component with city component, and
+	server component to repeat.
+	
+	A repeater component needs the UI element as well as the data so that it can repeat.
+	Since the UI also goes into this component, we can call it as a templated component.
+	
+* So in our exercise, we can create template components for our form fields in "EditServer.razor"
+	since they are using the same html structure.
+
+1. Create the component "/Components/Controls/Generic/FieldComponent.razor"
+
+<div class="row mb-3">
+	<div class="col-2">
+		<label class="col-form-label">@Label</label>
+	</div>
+	<div class="col-6">
+		@Control
+	</div>
+	<div class="col">
+		@ValidationControl
+	</div>
+</div>
+
+@code {
+	[Parameter]
+	public string? Label { get; set; }
+
+	[Parameter]
+	public RenderFragment? Control { get; set; }
+
+	[Parameter]
+	public RenderFragment? ValidationControl { get; set; }
+}
+
+2. Add the following line to "/_imports.razor", so that we dont have to mention the whole
+	path for our component.
+
+	@using ServerManagement.Components.Controls.Generic
+
+3. Update "/Components/Pages/EditServer.razor" with our "FieldComponent.razor"
+
+@page "/servers/{id:int?}"
+
+@inject NavigationManager NavigationManager
+
+<h3>EditServer</h3>
+<br />
+<br />
+
+@if (server != null) {
+	<EditForm Model="server" FormName="formServer" OnValidSubmit="Submit">
+		<DataAnnotationsValidator></DataAnnotationsValidator>
+		<ValidationSummary></ValidationSummary>
+		<InputNumber @bind-Value="server.ServerId" hidden></InputNumber>
+		<FieldComponent Label="Name">
+			<Control>
+				<InputText @bind-Value="server.Name" class="form-control input-width"></InputText>
+			</Control>
+			<ValidationControl>
+				<ValidationMessage For="() => server.Name"></ValidationMessage>
+			</ValidationControl>
+		</FieldComponent>
+
+		<FieldComponent Label="City">
+			<Control>
+				<InputText @bind-Value="server.City" class="form-control input-width"></InputText>
+			</Control>
+			<ValidationControl>
+				<ValidationMessage For="() => server.City"></ValidationMessage>
+			</ValidationControl>
+		</FieldComponent>
+
+		<FieldComponent Label="Online">
+			<Control>
+				<InputCheckbox @bind-Value="server.IsOnline" class="form-check-input"></InputCheckbox>
+			</Control>
+		</FieldComponent>
+
+		<br/>
+		<button class="btn btn-primary" type="submit">Update</button>
+		&nbsp;
+		<a href="/servers" class="btn btn-primary">Close</a>
+	</EditForm>
+}
+
+
+
+@code {
+	[Parameter]
+	public int? Id { get; set; }
+
+	[SupplyParameterFromForm(FormName ="formServer")]
+	private Server? server { get; set; }
+
+	protected override void OnParametersSet() {
+		server ??= ServersRepository.GetServerById(this.Id);
+	}
+
+	private void Submit() {
+		if (server != null) {
+			ServersRepository.UpdateServer(server.ServerId, server);
+		}
+
+		NavigationManager.NavigateTo("/servers");
+	}
+}
+
 
 -------------------------------------------------------------------------------------------
 --
