@@ -1863,6 +1863,69 @@ else {
 }
 
 
+--
+-- 65. Typed Templated Component
+--
+
+* Here we will create a repeater component to repeat our cities and servers.
+
+* A repeater component needs 3 things to be defined
+	1. Data Type
+	2. Data
+	3. Feed data to the template
+	
+Steps:
+
+1. Create repeater component template "/Components/Controls/Generic/RepeaterComponent.razor"
+
+@typeparam TItem
+
+@Header
+@if (Items != null && Items.Count > 0 && Row != null) {
+	<Virtualize Items="this.Items" Context="item">
+		@Row(item)
+	</Virtualize>
+}
+@Footer
+
+@code {
+	[Parameter]
+	public List<TItem>? Items { get; set; }
+
+	[Parameter]
+	public RenderFragment<TItem>? Row { get; set; }
+
+	[Parameter]
+	public RenderFragment Header { get; set; }
+
+	[Parameter]
+	public RenderFragment Footer { get; set; }
+}
+
+
+2. Use our repeater component in our server list component "/Components/Controls/ServerListComponent.razor"
+
+** Remove the following
+
+@if (this.servers != null && this.servers.Count > 0) {
+	<ul class="list-unstyled">
+		<Virtualize Items="this.servers" Context="server">
+			<ServerComponent Server="server"></ServerComponent>
+		</Virtualize>
+	</ul>
+}
+
+** Add the following
+
+<ul class="list-unstyled">
+	<RepeaterComponent Items="this.servers">
+		<Row Context="server">
+			<ServerComponent Server="server"></ServerComponent>
+		</Row>
+	</RepeaterComponent>
+</ul>
+
+	
 -------------------------------------------------------------------------------------------
 --
 -- Section 6: Course Project (Part 2): Componentize our To-Do List App
