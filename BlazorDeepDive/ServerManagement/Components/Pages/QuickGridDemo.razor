@@ -1,0 +1,76 @@
+﻿@page "/quickgrid"
+@using Microsoft.AspNetCore.Components.QuickGrid
+@inject NavigationManager NavigationManager
+@rendermode InteractiveServer
+
+<h3>QuickGridDemo</h3>
+<br />
+
+@if (servers != null) {	
+	<QuickGrid Items="servers.AsQueryable()">
+		<PropertyColumn Property="s => s.Name"></PropertyColumn>
+		<PropertyColumn Property="s => s.City"></PropertyColumn>
+		<TemplateColumn Title = "Status">
+			@if (context.IsOnline) {
+				<div style="color: green">
+					Online
+				</div>
+			} else {
+				<div style="color: red">
+					Offline
+				</div>
+			}
+		</TemplateColumn>
+		<TemplateColumn Title = "People Online">
+			@if (context.IsOnline == true) {
+				Random random = new Random();
+				int randomNumber = random.Next(0, 500);
+
+				<span>@randomNumber</span>
+			}
+			else {
+				<span>N/A</span>
+			}
+		</TemplateColumn>
+		<TemplateColumn>
+			@if (context.IsOnline) {
+				<button type="button"
+						class="btn btn-outline-danger"
+						@onclick="@(() => {context.IsOnline = false; } )">
+					Turn Off
+				</button>
+			}
+			else {
+				<button type="button"
+						class="btn btn-outline-success"
+						@onclick="@(() => {context.IsOnline = true; } )">
+					Turn On
+				</button>
+			}
+		</TemplateColumn>
+		<TemplateColumn>
+			<a href="/Servers/@context.ServerId" class="btn btn-link">Edit</a>
+		</TemplateColumn>
+		<TemplateColumn>
+			<ChildContent Context="server">
+				<EditForm Enhance="true" 
+					Model="server" 
+					FormName="@($"form-Server-{server.ServerId}")" 
+					OnValidSubmit="@(() => { DeleteServer(server.ServerId); })">
+					<button type="submit" class="btn btn-primary">Delete</button>
+				</EditForm>
+			</ChildContent>
+		</TemplateColumn>
+	</QuickGrid>
+}
+
+@code {
+	private List<Server>? servers = ServersRepository.GetServers();
+
+	private void DeleteServer(int ServerId) {
+		if (ServerId > 0) {
+			ServersRepository.DeleteServer(ServerId);
+			NavigationManager.NavigateTo("/quickgrid", true);
+		}
+	}
+}

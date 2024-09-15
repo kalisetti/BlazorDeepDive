@@ -1933,6 +1933,25 @@ Steps:
 * Just simply replace our ul element with table
 
 
+--
+-- 67. Using QuickGrid to display our servers
+--
+
+* QuickGrid is offered by Microsoft for developers to display data quickly in a tabular
+	format.
+	
+* We need to install NuGet package, install the one from Microsoft.
+
+* After installing, we can notice our project file will be referencing QuickGrid. 
+
+1. Lets create "/Components/Pages/QuickGridDemo.razor" for practice
+
+2. Do a "Ctrl ." for adding the namespace for QuickGrid component.
+
+@using Microsoft.AspNetCore.Components.QuickGrid
+
+
+
 -------------------------------------------------------------------------------------------
 --
 -- Section 6: Course Project (Part 2): Componentize our To-Do List App
