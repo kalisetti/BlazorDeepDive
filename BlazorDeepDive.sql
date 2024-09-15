@@ -1679,15 +1679,18 @@ else {
 -- 62. Use cascading parameter to pass values down the component tree
 --
 
-* In this exercise we will change the background city of servers based on the city
+* In this exercise we will change the background color of the servers based on the city
 	selected. Remember we currently dont have state variable for the city in
 	"ServerComponent.razor".
 
-* Here we will cascade selectedCity from Servers.razor to bottom level which is 
-	ServerComponent.razor(which is inside ServerListComponent.razor).
+* Here we will cascade selectedCity from "Servers.razor" to bottom level which is 
+	"ServerComponent.razor" (which is inside ServerListComponent.razor).
+	
+	
+	1. Cascade the value
 	
 	-- /Components/Pages/Servers.razor
-	1. Cascade the value
+	
 	<CascadingValue Name="SelectedCity" Value="@selectedCity">
 		<ServerListComponent 
 			@rendermode="InteractiveServer" 
@@ -1698,6 +1701,7 @@ else {
 	2. Define parameter for cascading value in the receiving component
 	
 	-- /Components/Pages/ServerComponent.razor
+	
 	<li @key="Server.ServerId" style="background-color: @GetBackgroundColor()">
 		....
 	</li>
@@ -1720,6 +1724,26 @@ else {
 			}
 		}
 	}
+
+--
+-- 63. Cascading Parameter crossing render mode boundary
+--
+
+* Typically cascading parameters does not cross render mode boundary between SSR and 
+	interactive server.
+
+* So cascading from SSR to InteractiveServer means, crossing from one boundary to other.
+	When that happens the cascading mechanism doesnt work anymore.
+	
+* We can make this happen but not through CascadingValue component.
+
+	We can do this by going to our "program.cs" and adding the line
+	
+	builder.Services.AddCascadingValue("SelectedCity", sp => "Perth");
+	
+	- Here sp means service provider
+	
+	
 
 -------------------------------------------------------------------------------------------
 --
