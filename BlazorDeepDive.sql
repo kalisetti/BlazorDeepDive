@@ -1925,7 +1925,14 @@ Steps:
 	</RepeaterComponent>
 </ul>
 
-	
+
+--
+-- 66. Use html table in our RepeaterComponent
+--
+
+* Just simply replace our ul element with table
+
+
 -------------------------------------------------------------------------------------------
 --
 -- Section 6: Course Project (Part 2): Componentize our To-Do List App
