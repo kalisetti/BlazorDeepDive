@@ -2014,6 +2014,11 @@ Steps:
 	SearchServerCallback="HandleSearchServer"></SearchBarComponent>
 
 
+--
+-- 70. Componentize the List of Items
+--
+
+
 
 -------------------------------------------------------------------------------------------
 --
