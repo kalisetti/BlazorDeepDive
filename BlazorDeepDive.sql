@@ -1951,7 +1951,34 @@ Steps:
 @using Microsoft.AspNetCore.Components.QuickGrid
 
 
+--
+-- 68. QuickGrid Sorting and Pagination
+--
 
+* For PropertyColumn elements just add Sortable="true" for the respective column
+* For TemplateColumn it doesnt work. We need to add an extra property here.
+<TemplateColumn Title = "Status" Sortable="true" SortBy="GridSort<Server>.ByAscending(s => s.IsOnline)">
+	@if (context.IsOnline) {
+		<div style="color: green">
+			Online
+		</div>
+	} else {
+		<div style="color: red">
+			Offline
+		</div>
+	}
+</TemplateColumn>
+
+* Add Pagination to "QuickGrid"
+
+<QuickGrid Items="servers.AsQueryable()" Pagination="paginationState">
+</QuickGrid>
+
+<Paginator State="paginationState"></Paginator>
+
+@code {
+	private PaginationState paginationState = new PaginationState { ItemsPerPage = 5 };
+}
 -------------------------------------------------------------------------------------------
 --
 -- Section 6: Course Project (Part 2): Componentize our To-Do List App
