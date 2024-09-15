@@ -1979,6 +1979,42 @@ Steps:
 @code {
 	private PaginationState paginationState = new PaginationState { ItemsPerPage = 5 };
 }
+
+
+--
+-- 69. Use arbitrary attributes to provide flexibility
+--
+
+* The thing is we cannot use our attributes like "style" etc., on Blazor components.
+
+* To make this work, we just need to define one parameter in our component to capture all
+	the attributes.
+	
+-- /Components/SearchBarComponent.razor
+<div class="input-group mb-3 input-width" @attributes=OtherAttributes>
+	<input type="text" class="form-control" 
+		placeholder="Search Servers" 
+		@bind-value="serverFilter" 
+		@bind-value:event="oninput" />
+	<button class="btn btn-outline-secondary" type="button" id="button-search" @onclick="HandleSearch">Search</button>
+</div>
+
+
+@code {
+	[Parameter(CaptureUnmatchedValues = true)]
+	public Dictionary<string, object>? OtherAttributes { get; set; }
+}
+	
+-- /Components/Pages/Servers.razor
+<SearchBarComponent 
+	@rendermode="InteractiveServer"
+	@ref="searchBarComponent"
+	style="width: 1000px"
+	data-my-attribute="my-attribute-value"
+	SearchServerCallback="HandleSearchServer"></SearchBarComponent>
+
+
+
 -------------------------------------------------------------------------------------------
 --
 -- Section 6: Course Project (Part 2): Componentize our To-Do List App
